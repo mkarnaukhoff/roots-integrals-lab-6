@@ -1,1 +1,31 @@
+# Исполняемые файлы
+*.out
+*.exe
+*.app
+*.elf
+*.bin
+
+# Объектные файлы
+*.o
+*.obj
+
+# Библиотеки
+*.a
+*.so
+*.dll
+*.dylib
+
+# Debug symbols
+*.pdb
+*.dSYM/
+
+# Логи
+*.log
+
+# Vim / VSCode / IDE
+.vscode/
+.idea/
+*.swp
+
+# macOS / Linux мусор
 .DS_Store
