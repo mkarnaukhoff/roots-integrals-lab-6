@@ -10,71 +10,51 @@ int root_chord(func_t f, func_t g, float a, float b, float eps, int *iters, floa
     if (fa * fb > 0) return -1;
     int k = 0;
 
-    while (fabsf(b - a) > eps && k < 100000) 
-    {
-        if (fabsf(fa) < eps) { 
-            b = a; 
-            break; 
-        }
-        if (fabsf(fb) < eps) { 
-            a = b; 
-            break; 
-        }
-        float c = (a * fb - b * fa) / (fb - fa);
+    float c_prev = a;
+    while (1) {
+        float c = b - (fb * (b - a)) / (fb - fa);
         float fc = h(f, g, c);
-        if (fabsf(fc) < eps) { 
-            a = b = c; 
-            break; 
+        
+        if (fabsf(c - c_prev) < eps) {
+            *x = c;
+            break;
         }
-        if (fa * fc <= 0) { 
-            b = c; 
-            fb = fc; 
-        } else { 
-            a = c; 
-            fa = fc; 
+        
+        c_prev = c;
+        if (fa * fc < 0) {
+            b = c;
+            fb = fc;
+        } else {
+            a = c;
+            fa = fc;
         }
         k++;
+        if (k > 100000) { *x = c; break; }
     }
-    *x = (a + b) * 0.5f;
+
     if (iters) *iters = k;
     return 0;
 }
 
 int root_combined(func_t f, func_t g, float a, float b, float eps, int *iters, float *x) {
-
     float fa = h(f, g, a), fb = h(f, g, b);
     if (fa * fb > 0) return -1;
     int k = 0;
 
-    while (fabsf(b - a) > eps && k < 100000) 
-    {
-        if (fabsf(fa) < eps) { 
-            b = a; 
-            break; 
-        }
-        if (fabsf(fb) < eps) { 
-            a = b; 
-            break; 
-        }
-        float c = (a * fb - b * fa) / (fb - fa);
-        float m = 0.5f * (a + b);
-        float fc = h(f, g, c);
-        float fm = h(f, g, m);
+    while (fabsf(b - a) > eps && k < 100000) {
+        // Шаг хорды с левого конца
+        float c = a - (fa * (b - a)) / (fb - fa);
+        
+        // Шаг касательной (численное приближение производной)
+        float dx = 1e-4f;
+        float df = (h(f, g, b + dx) - h(f, g, b)) / dx;
+        float m = b - h(f, g, b) / df;
 
-        if (fa * fc <= 0) { 
-            b = c; 
-            fb = fc; 
-        } else { 
-            a = c; 
-            fa = fc; 
-        }
-        if (fa * fm <= 0) { 
-            b = m; 
-            fb = fm; 
-        } else { 
-            a = m; 
-            fa = fm; 
-        }
+        a = c; // Хорда двигает левую границу 'a'
+        b = m; // Касательная двигает правую границу 'b'
+        
+        fa = h(f, g, a);
+        fb = h(f, g, b);
         k++;
     }
     *x = 0.5f * (a + b);

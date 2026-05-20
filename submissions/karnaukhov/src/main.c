@@ -86,7 +86,7 @@ int main(int argc, char **argv)
         r=arr[2];
     }
 
-    float s = integral_simpson(f1,l,r,1e-6f) - integral_simpson(f2,m,r,1e-6f) - integral_simpson(f3,l,m,1e-6f);
+    float s = integral_simpson(diff13, l, m, 1e-6f) + integral_simpson(diff12, m, r, 1e-6f);
     
     printf("Area ~= %.6f\n", fabsf(s));
     return 0;
